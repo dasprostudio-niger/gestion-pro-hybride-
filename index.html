@@ -661,6 +661,14 @@ body.dark .alerte-stock .liste{color:#fecaca}
 <div class="flex-between"><span data-i18n="expenses_total">📉 Dépenses</span><span class="badge red" id="analyseDepenses">0 F</span></div>
 <div class="flex-between"><span data-i18n="net_profit">📊 Bénéfice</span><span class="badge blue" id="analyseBenefice">0 F</span></div>
 </div>
+<div class="card">
+  <div class="card-title">🏆 Top 5 Clients (Fidélité)</div>
+  <div id="topClientsContainer"></div>
+</div>
+<div class="card">
+  <div class="card-title">📦 Top 5 Produits (Les plus vendus)</div>
+  <div id="topProduitsContainer"></div>
+</div>
 <div class="card"><div class="card-title" data-i18n="details">📋 Détail</div><div id="analyseDetailContainer"></div></div>
 </div>
 
@@ -2633,7 +2641,43 @@ function supprimerHistorique(){showConfirm('confirm_clear_history',function(){se
 
 // ============ ANALYSE ============
 function changerPeriode(periode,btn){document.querySelectorAll('#screenAnalyse .btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');analyserPeriode(periode);}
-function analyserPeriode(periode){const historique=getHistorique();const now=new Date();let debut=new Date(0);if(periode==='today')debut=new Date(now.getFullYear(),now.getMonth(),now.getDate());else if(periode==='week'){debut=new Date(now);debut.setDate(now.getDate()-(now.getDay()||7)+1);debut.setHours(0,0,0,0);}else if(periode==='month')debut=new Date(now.getFullYear(),now.getMonth(),1);else if(periode==='year')debut=new Date(now.getFullYear(),0,1);const fin=new Date(now);fin.setHours(23,59,59,999);let ca=0,dep=0;historique.forEach(h=>{const d=new Date(h.timestamp);if(d>=debut&&d<=fin){if(estCommande(h)){if(h.params&&h.params.total){ca+=Number(h.params.total)||0;}else{const m=(h.detail||'').match(/Total:\s*([\d.]+)/);if(m)ca+=parseFloat(m[1].replace(/\./g,''));}}if(estDepense(h)){const m=(h.detail||'').match(/([\d.]+)\s*F/);if(m)dep+=parseFloat(m[1].replace(/\./g,''));}}});document.getElementById('analyseCA').textContent=formatMontantAvecDevise(ca);document.getElementById('analyseDepenses').textContent=formatMontantAvecDevise(dep);const benef=ca-dep;const el=document.getElementById('analyseBenefice');el.textContent=formatMontantAvecDevise(benef);el.className='badge '+(benef>=0?'green':'red');const container=document.getElementById('analyseDetailContainer');const filtres=historique.filter(h=>{const d=new Date(h.timestamp);return d>=debut&&d<=fin;});if(filtres.length===0){container.innerHTML='<div class="empty-state">'+translate('no_operations')+'</div>';return;}let html='';filtres.slice(0,20).forEach(h=>{html+='<div class="hist-item"><div class="date">'+formatDateLocale(h.timestamp)+' '+h.heure+'</div><div class="action">'+traduireHistorique(h)+'</div><div class="detail">'+getDetailHistorique(h)+'</div></div>';});container.innerHTML=html;}
+function analyserPeriode(periode){const historique=getHistorique();const now=new Date();let debut=new Date(0);if(periode==='today')debut=new Date(now.getFullYear(),now.getMonth(),now.getDate());else if(periode==='week'){debut=new Date(now);debut.setDate(now.getDate()-(now.getDay()||7)+1);debut.setHours(0,0,0,0);}else if(periode==='month')debut=new Date(now.getFullYear(),now.getMonth(),1);else if(periode==='year')debut=new Date(now.getFullYear(),0,1);const fin=new Date(now);fin.setHours(23,59,59,999);let ca=0,dep=0;historique.forEach(h=>{const d=new Date(h.timestamp);if(d>=debut&&d<=fin){if(estCommande(h)){if(h.params&&h.params.total){ca+=Number(h.params.total)||0;}else{const m=(h.detail||'').match(/Total:\s*([\d.]+)/);if(m)ca+=parseFloat(m[1].replace(/\./g,''));}}if(estDepense(h)){const m=(h.detail||'').match(/([\d.]+)\s*F/);if(m)dep+=parseFloat(m[1].replace(/\./g,''));}}});document.getElementById('analyseCA').textContent=formatMontantAvecDevise(ca);document.getElementById('analyseDepenses').textContent=formatMontantAvecDevise(dep);const benef=ca-dep;const el=document.getElementById('analyseBenefice');el.textContent=formatMontantAvecDevise(benef);el.className='badge '+(benef>=0?'green':'red');const container=document.getElementById('analyseDetailContainer');const filtres=historique.filter(h=>{const d=new Date(h.timestamp);return d>=debut&&d<=fin;});if(filtres.length===0){container.innerHTML='<div class="empty-state">'+translate('no_operations')+'</div>';return;}let html='';filtres.slice(0,20).forEach(h=>{html+='<div class="hist-item"><div class="date">'+formatDateLocale(h.timestamp)+' '+h.heure+'</div><div class="action">'+traduireHistorique(h)+'</div><div class="detail">'+getDetailHistorique(h)+'</div></div>';});container.innerHTML=html;
+afficherTopClientsEtProduits(debut, fin);}
+function afficherTopClientsEtProduits(debut, fin) {
+    const commandes = getCommandes().filter(c => {
+        const d = new Date(c.timestamp);
+        return d >= debut && d <= fin;
+    });
+
+    const clientsMap = {};
+    const produitsMap = {};
+
+    commandes.forEach(c => {
+        if (c.client && c.client !== 'Client') {
+            if (!clientsMap[c.client]) clientsMap[c.client] = 0;
+            clientsMap[c.client] += c.total;
+        }
+        c.articles.forEach(art => {
+            if (!produitsMap[art.nom]) produitsMap[art.nom] = 0;
+            produitsMap[art.nom] += art.quantite;
+        });
+    });
+
+    const topClients = Object.entries(clientsMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const topProduits = Object.entries(produitsMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+    let htmlClients = topClients.length === 0 ? '<div class="empty-state">Aucune vente sur cette période</div>' : '';
+    topClients.forEach(([nom, total]) => {
+        htmlClients += '<div class="flex-between" style="padding:8px 0;border-bottom:1px solid var(--border)"><span>👤 ' + nom + '</span><strong>' + formatMontantAvecDevise(total) + '</strong></div>';
+    });
+    document.getElementById('topClientsContainer').innerHTML = htmlClients;
+
+    let htmlProduits = topProduits.length === 0 ? '<div class="empty-state">Aucune vente sur cette période</div>' : '';
+    topProduits.forEach(([nom, qte]) => {
+        htmlProduits += '<div class="flex-between" style="padding:8px 0;border-bottom:1px solid var(--border)"><span>📦 ' + nom + '</span><strong>' + qte + ' vendus</strong></div>';
+    });
+    document.getElementById('topProduitsContainer').innerHTML = htmlProduits;
+}
 
 // ============ GRAPHIQUES ============
 function changerPeriodeGraphique(periode,btn){document.querySelectorAll('#screenGraphiques .btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');periodeGraphique=periode;afficherGraphiques();}
