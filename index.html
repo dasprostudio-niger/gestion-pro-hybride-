@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="description" content="Gestion Pro - Gérez votre stock, vos ventes et vos bénéfices facilement, même hors ligne.">
-<title>Gestion Pro</title>
+<title>Gestion Pro Hybride</title>
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -242,7 +242,7 @@ body.dark .alerte-stock .liste{color:#fecaca}
 <body>
 <div id="splash" onclick="this.style.display='none';document.getElementById('app').style.opacity='1'">
 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgSplash" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2563eb;stop-opacity:1"/><stop offset="100%" style="stop-color:#1e40af;stop-opacity:1"/></linearGradient></defs><rect width="200" height="200" rx="45" fill="url(#bgSplash)"/><path d="M50 80 L100 55 L150 80 L150 140 L100 165 L50 140 Z" fill="none" stroke="#ffffff" stroke-width="7" stroke-linejoin="round"/><path d="M50 80 L100 105 L150 80" fill="none" stroke="#ffffff" stroke-width="7" stroke-linejoin="round"/><path d="M100 105 L100 165" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/><path d="M75 130 L90 115 L105 125 L125 100" fill="none" stroke="#fbbf24" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="125" cy="100" r="6" fill="#fbbf24"/></svg>
-<div class="title">Gestion <span>Pro</span></div>
+<div class="title">Gestion <span>Pro+</span></div>
 <div class="sub">DAS PRO STUDIO</div>
 <div class="loader"><div class="bar"></div></div>
 <div class="signature">© DAS PRO STUDIO — <strong>Aboubacar Mahaman Natitia</strong></div>
@@ -252,7 +252,7 @@ body.dark .alerte-stock .liste{color:#fecaca}
 <header class="app-header">
 <div class="logo-area">
 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="38" height="38"><defs><linearGradient id="bgHeader" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2563eb;stop-opacity:1"/><stop offset="100%" style="stop-color:#1e40af;stop-opacity:1"/></linearGradient></defs><rect width="200" height="200" rx="45" fill="url(#bgHeader)"/><path d="M50 80 L100 55 L150 80 L150 140 L100 165 L50 140 Z" fill="none" stroke="#ffffff" stroke-width="7" stroke-linejoin="round"/><path d="M50 80 L100 105 L150 80" fill="none" stroke="#ffffff" stroke-width="7" stroke-linejoin="round"/><path d="M100 105 L100 165" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/><path d="M75 130 L90 115 L105 125 L125 100" fill="none" stroke="#fbbf24" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="125" cy="100" r="6" fill="#fbbf24"/></svg>
-<div class="brand">Gestion <span>Pro</span></div>
+<div class="brand">Gestion <span>Pro+</span></div>
 </div>
 <span class="version-badge">v5.1.1</span>
 </header>
@@ -289,10 +289,10 @@ body.dark .alerte-stock .liste{color:#fecaca}
 <div id="venteInfoAuto" class="text-sm text-muted" style="display:none" data-i18n="product_found">✅ Produit trouvé</div>
 <div class="form-group">
 <label data-i18n="sale_level">Niveau de vente</label>
-<div class="level-selector">
+<div class="level-selector" style="display:none;">
 <button data-level="carton" onclick="changerNiveauVente('carton',this)" data-i18n="carton">📦 Carton</button>
 <button data-level="boite" onclick="changerNiveauVente('boite',this)" data-i18n="boite">📫 Boîte</button>
-<button data-level="piece" onclick="changerNiveauVente('piece',this)" data-i18n="piece">🔹 Pièce</button>
+<button data-level="piece" class="active" onclick="changerNiveauVente('piece',this)" data-i18n="piece">🔹 Pièce</button>
 </div>
 </div>
 <div class="form-group">
@@ -332,7 +332,7 @@ body.dark .alerte-stock .liste{color:#fecaca}
 <div class="screen-title" data-i18n="products_title">📦 Produits</div>
 <div class="card">
 <div class="card-title" data-i18n="add_edit">➕ Ajouter / Modifier</div>
-<button class="btn btn-sm btn-outline mb-2" onclick="demarrerScannerProduit()" style="width:100%;margin-bottom:12px" data-i18n="scan_product_qr">📷 Scanner un produit (QR / Code-barres)</button>
+<!-- Scan désactivé pour l'édition Boutique -->
 <div id="scannerProductContainer"><div id="readerProduct"></div><div id="scannerProductStatus" data-i18n="scanner_ready">Prêt à scanner...</div><div class="scanner-actions"><button class="btn btn-sm btn-danger" onclick="arreterScannerProduit()" data-i18n="stop_scan">⏹ Arrêter</button></div></div>
 <div class="product-image-upload">
 <img id="productImagePreview" class="product-image-preview" src="launchericon-192x192.png" onclick="document.getElementById('productImageInput').click()"/>
